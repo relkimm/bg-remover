@@ -4,6 +4,7 @@ from video_uploader import upload_video
 from frame_extractor import extract_frames
 from bg_remover import remove_bg
 from frame_uploader import upload_frame
+from webp_generator import generate_webp
 
 app = FastAPI()
 
@@ -25,4 +26,5 @@ async def video(file: UploadFile):
   frames = await asyncio.gather(*remove_bg_tasks)
   upload_frame_tasks = [upload_frame("static/frame", index, frame) for index, frame in enumerate(frames)]
   frame_paths = await asyncio.gather(*upload_frame_tasks)
-  return { "video": "uploaded" }
+  profile_path = generate_webp("static/profile/profile.webp", frame_paths)
+  return { "profile": profile_path }
