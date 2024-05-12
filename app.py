@@ -3,6 +3,7 @@ from fastapi import FastAPI, UploadFile
 from video_uploader import upload_video
 from frame_extractor import extract_frames
 from bg_remover import remove_bg
+from frame_uploader import upload_frame
 
 app = FastAPI()
 
@@ -21,5 +22,7 @@ async def video(file: UploadFile):
     video_path=video_path,
   )
   remove_bg_tasks = [remove_bg(frame) for frame in frames]
-  await asyncio.gather(*remove_bg_tasks)
+  frames = await asyncio.gather(*remove_bg_tasks)
+  upload_frame_tasks = [upload_frame("static/frame", index, frame) for index, frame in enumerate(frames)]
+  frame_paths = await asyncio.gather(*upload_frame_tasks)
   return { "video": "uploaded" }
